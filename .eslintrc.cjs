@@ -12,4 +12,8 @@ module.exports = {
   parserOptions: {
     ecmaVersion: "latest",
   },
+  rules: {
+    semi: "error",
+    "no-irregular-whitespace": 'off'
+  }
 };

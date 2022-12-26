@@ -1,5 +1,6 @@
 <template>
   <Loading msg="You did it!" v-if="loading" @increase="handleIncrease"/>
+  <Loginpanel v-if="loginPanel"/>
   <div id="sytalk_part1">
     <div id="shuoshuo_content">
       <div id="content">
@@ -51,8 +52,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { ref, onMounted} from 'vue';
-  import { getCurrentInstance} from 'vue';
+  import { ref, reactive, onMounted } from 'vue';
+  import { getCurrentInstance } from 'vue';
   // leancloud官方包
   import AV from "leancloud-storage";
   // 浏览器识别
@@ -62,9 +63,19 @@
 
   // 引入组件
   import Loading from './components/loading.vue';
+  import Loginpanel from './components/loginpanel.vue';
 
   // 当前的版本号
   const atVersion = "2.0.0";
+
+  // 从远程拿来的主体结构
+  interface atContent {
+    avatar: string, 
+    createAt: string, 
+    userOs: string, 
+    id: string,   // leancloud的id是字符串
+    zanId: string // leancloud的自动编号类型是字符串
+  }
 
   // 这破地方，没救了,读取全局文件中的配置参数
   // @ts-ignore
@@ -103,18 +114,7 @@
     // 发布说说后的回调事件
     onPublished: proxy.$config.onPublished || null
   }
-  try {
-    AV.init({
-      appId: SYTALK_CONFIG.appId,
-      appKey: SYTALK_CONFIG.appKey,
-      serverURL: SYTALK_CONFIG.serverURL
-    });
-    console.log(AV);
-  } catch(e: any) {
-    console.log("这里是av初始化失败!");
-    console.log(SYTALK_CONFIG);
-    console.log(e.message);
-  }
+  
   // const browser = Bowser.getParser(window.navigator.userAgent);
   // console.log(browser);
 
@@ -124,9 +124,40 @@
   // 这里让顶部的welcome不显示
   const loading = ref(false);
 
+  // 显示登陆框
+  const loginPanel = ref(false)
+
+  // 这里是碎语的主体文件结构
+  let atContent: atContent = reactive({ avatar: "", createAt: "", userOs: "", id: "", zanId: "" });
+
+  // 这里是用户信息
+  let atUser = reactive({username: "", img: "", email: ""});
+
+  console.log(atContent);
+
   function change() {
     loading.value = !loading.value;
   }
+
+  // 初始化动作
+  onMounted(() => {
+    try {
+      AV.init({
+        appId: SYTALK_CONFIG.appId,
+        appKey: SYTALK_CONFIG.appKey,
+        serverURL: SYTALK_CONFIG.serverURL
+      });
+      // 这里获取用户信息
+      // atUser = AV.User.current()
+      console.log(AV.User.current());
+    } catch(e: any) {
+      console.log("这里是av初始化失败!");
+      console.log(SYTALK_CONFIG);
+      console.log(e.message);
+    }
+
+    console.log("onMounted");
+  });
 
   // 点击返回值 
   const handleIncrease = (...args: Array<any>) => {
