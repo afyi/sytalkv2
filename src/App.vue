@@ -3,9 +3,7 @@
   <Loginpanel v-if="loginPanel"/>
   <div id="sytalk_part1">
     <div id="shuoshuo_content">
-      <div id="content">
-        <ul class="cbp_tmtimeline" id="maina"></ul>
-      </div>
+      <List msg="暂时还没有列表内容"></List>
       <div id="readButton">
         <button id="readmore" class="at_button" @click="change()">阅读更多</button>
       </div>
@@ -52,8 +50,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { ref, reactive, onMounted } from 'vue';
-  import { getCurrentInstance } from 'vue';
+  import { ref, reactive, onMounted } from "vue";
+  import { getCurrentInstance } from "vue";
   // leancloud官方包
   import AV from "leancloud-storage";
   // 浏览器识别
@@ -62,8 +60,9 @@
   // import showdown from "showdown";
 
   // 引入组件
-  import Loading from './components/loading.vue';
-  import Loginpanel from './components/loginpanel.vue';
+  import Loading from "./components/loading.vue";
+  import Loginpanel from "./components/loginpanel.vue";
+  import List from "./components/list.vue";
 
   // 当前的版本号
   const atVersion = "2.0.0";
@@ -95,8 +94,6 @@
     emojiServer: proxy.$config.emojiServer || "https://fastly.jsdelivr.net/gh/afyi/sytalk/dist/emoji/",
     // 发说说框的背景图，默认是https://github.com/afyi/sytalk/dist/img/bgImg.webp
     bgImg: proxy.$config.bgImg || "https://fastly.jsdelivr.net/gh/afyi/sytalk/dist/img/bgImg.webp",
-    // css的地址，默认也是jsdelivr加速过的github地址，可以更换为你自己的
-    cssUrl: proxy.$config.cssUrl || "https://fastly.jsdelivr.net/gh/afyi/sytalk/dist/css/sytalk.min.css",
     // 说说框的默认占位文字
     shuoPla: proxy.$config.shuoPla || "请输入你的心情吧 ^_^~",
     // 发说说的个人头像，默认用的是cravatar.cn默认头像
@@ -151,8 +148,6 @@
       // atUser = AV.User.current()
       console.log(AV.User.current());
     } catch(e: any) {
-      console.log("这里是av初始化失败!");
-      console.log(SYTALK_CONFIG);
       console.log(e.message);
     }
 
