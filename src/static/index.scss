@@ -1,6 +1,7 @@
 /** 全局变量 */
 :root{--list-even-color:#fff;--list-odd-color:#fff;--readmore-bg-color:#fff;--main-text-color: #707070; --button-bg-color: #efefef}
 /** 图标信息 */
+@font-face {font-family: 'syicon';src: url('//at.alicdn.com/t/c/font_3781441_xhtql9cb4.woff2?t=1669300262840') format('woff2'),url('//at.alicdn.com/t/c/font_3781441_xhtql9cb4.woff?t=1669300262840') format('woff'),url('//at.alicdn.com/t/c/font_3781441_xhtql9cb4.ttf?t=1669300262840') format('truetype');}
 .syicon{font-style:normal;font-size:16px;font-family:syicon!important;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .sy-zan:before{content:"\e62e"}
 .sy-linux:before{content:"\e61c"}

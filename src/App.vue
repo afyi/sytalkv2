@@ -3,14 +3,14 @@
   <Loginpanel v-if="loginPanel"/>
   <div id="sytalk_part1">
     <div id="shuoshuo_content">
-      <List msg="暂时还没有列表内容"></List>
+      <List msg="暂时还没有列表内容" :shuoList="shuoList"></List>
       <div id="readButton">
         <button id="readmore" class="at_button" @click="change()">阅读更多</button>
       </div>
     </div>
     <div id="shuoshuo_input" class="shuoshuo_active">
       <div id="shuoshuo_edit">
-        <textarea class="shuoshuo_text" id="neirong" placeholder="占位符" style="background-image:url('')"></textarea>
+        <textarea class="shuoshuo_text" id="neirong" placeholder="占位符"></textarea>
         <span id="drag_area" class="z-index: -1;"></span>
       </div>
       <div id="shuoshuo_parttwo" class="shuoshuo_parttwo">
@@ -67,15 +67,6 @@
   // 当前的版本号
   const atVersion = "2.0.0";
 
-  // 从远程拿来的主体结构
-  interface atContent {
-    avatar: string, 
-    createAt: string, 
-    userOs: string, 
-    id: string,   // leancloud的id是字符串
-    zanId: string // leancloud的自动编号类型是字符串
-  }
-
   // 这破地方，没救了,读取全局文件中的配置参数
   // @ts-ignore
   const { proxy } = getCurrentInstance();
@@ -118,19 +109,26 @@
   // const converter = new showdown.Converter() ;
   // console.log(converter.makeHtml('# hello, markdown!'));
 
+  interface User {
+    username: string, 
+    img: string, 
+    email: string
+  }
+
   // 这里让顶部的welcome不显示
   const loading = ref(false);
 
   // 显示登陆框
   const loginPanel = ref(false)
 
-  // 这里是碎语的主体文件结构
-  let atContent: atContent = reactive({ avatar: "", createAt: "", userOs: "", id: "", zanId: "" });
+  // 
+  const shuoList = reactive<object[]>([]);
+
+  // 起始页
+  let startNum: number = 0; 
 
   // 这里是用户信息
-  let atUser = reactive({username: "", img: "", email: ""});
-
-  console.log(atContent);
+  let atUser: AV.User;
 
   function change() {
     loading.value = !loading.value;
@@ -144,14 +142,38 @@
         appKey: SYTALK_CONFIG.appKey,
         serverURL: SYTALK_CONFIG.serverURL
       });
-      // 这里获取用户信息
-      // atUser = AV.User.current()
-      console.log(AV.User.current());
+      // 这里获取当前用户信息
+      atUser = AV.User.current();
+      // 结果数组
+      let resList: Array<any> = [];
+      //
+      let query = new AV.Query('shuoshuo');
+      // 先获取总条数，再进行循环
+      query.count().then(totalNum => {
+        console.log("总条数:", totalNum);
+        // 排序字段
+        query.descending('createdAt');
+        // 每页条数
+        query.limit(SYTALK_CONFIG.pageSize || 5);
+        // 筛选起点
+        query.skip(startNum);
+        // 拿到列表
+        query.find().then(shuoContent => {
+          let atList: Array<any> = [];
+          for (let i = 0; i < shuoContent.length; i++) {
+            let atContent = shuoContent[i] as AV.Queriable;
+            // atList.push({id: atContent.id, avatar: atContent.get("avatar"), atContentHtml: atContent.get("atContentHtml"), userOs: atContent.get("userOs"), createdAt: atContent.get("createdAt"), zanId: atContent.get("zanId"), zanNum: 0});
+            shuoList.push({id: atContent.id, avatar: atContent.get("avatar"), atContentHtml: atContent.get("atContentHtml"), userOs: atContent.get("userOs"), createdAt: atContent.get("createdAt"), zanId: atContent.get("zanId"), zanNum: 0});
+          }
+          
+          console.log(shuoList);
+        });
+      });
+
+
     } catch(e: any) {
       console.log(e.message);
     }
-
-    console.log("onMounted");
   });
 
   // 点击返回值 

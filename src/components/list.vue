@@ -1,28 +1,80 @@
 <script setup lang="ts">
-  defineProps<{msg: string}>();
+  import { computed } from 'vue'
+  // 从远程拿来的主体结构
+  interface atList {
+    id: string, 
+    avatar: string,
+    atContentHtml: string,
+    userOs: string,
+    createdAt: string,
+    zanId: string,
+    zanNum: number,
+    timeSvg: string
+  }
+  const props = defineProps<{
+    msg: string,
+    shuoList: Array<any>
+  }>();
+
+  const shuoListed = computed(() => {
+    for (let ind in props.shuoList) {
+      let atContent = props.shuoList[ind];
+      let nowDate = new Date(atContent.createdAt);
+      let nowDateStr = nowDate.getFullYear() + '-' + timeFormat(nowDate.getMonth() + 1) + '-' + timeFormat(nowDate.getDate()) + ' ' + timeFormat(nowDate.getHours()) + ':' + timeFormat(nowDate.getMinutes()) + ':' + timeFormat(nowDate.getSeconds());
+      let atHour = nowDate.getHours();
+      // 格式化时间
+      let timeSvg = "";
+      if (atHour >= 0 && atHour < 6) {
+        timeSvg = "sy-day1";
+      } else if (atHour >= 6 && atHour < 12) {
+        timeSvg = "sy-day2";
+      } else if (atHour >= 12 && atHour < 15) {
+        timeSvg = "sy-day3";          
+      } else if (atHour >= 15 && atHour < 19) {
+        timeSvg = "sy-day4";          
+      } else if (atHour >= 19 && atHour < 24) {
+        timeSvg = "sy-day5";          
+      } else {
+        timeSvg = "sy-day2";
+      }
+      props.shuoList[ind]["timeSvg"] = timeSvg;
+      props.shuoList[ind]["createdAt"] = nowDateStr;
+    }
+    console.log(props.shuoList);
+    return props.shuoList;
+  });
+
+  // 时间格式化
+  const timeFormat = (time: number) => {
+    return time < 10 ? '0' + time : time;
+  }
+
+
+  function del(id:string):void {
+    
+  }
+  function zan(id: string): void {
+
+  }
 </script>
 
 
 <template>
   <div id="content">
     <ul class="cbp_tmtimeline" id="maina">
-      <li id="li_639ef5a41d35662164eecdf8">  
+      <li v-for="shuo in shuoListed" :key="shuo.id">  
         <span class="shuoshuo_author_img">    
-          <img id="atAvatar639ef5a41d35662164eecdf8" src="https://cravatar.cn/avatar/140ca652b7fbed3147c72c7c3942be92?s=128" class="sytalk_avatar gallery-group-img" width="48" height="48">  
+          <img :src="shuo.avatar" class="sytalk_avatar gallery-group-img" width="48" height="48">  
         </span>  
-        <span class="cbp_tmlabel" id="atId639ef5a41d35662164eecdf8">    
-          <a href="javascript:void(0)" style="display: inline" id="operate639ef5a41d35662164eecdf8" class="delete_right" onclick="sytalk.delete('639ef5a41d35662164eecdf8', '639ef5a460195e6845e165a8')" title="删除本条说说">      
-            <i class="syicon sy-close"></i>    
-          </a>    
-          <div class="atContent" id="forEdit639ef5a41d35662164eecdf8">
-            <p>大约阳了吧，很难受哈哈</p>
-          </div>    
+        <span class="cbp_tmlabel">    
+          <a href="javascript:void(0)" class="delete_right" title="删除本条说说" @click="del(shuo.id)"><i class="syicon sy-close"></i>  </a>    
+          <div class="atContent" v-html="shuo.atContentHtml"></div>    
           <p class="shuoshuo_time">      
-            <span class="os"><i class="syicon sy-android"></i>风决定不了方向的Max3</span>      
-            <span class="date"><i class="syicon sy-day5"></i>2022-12-18 19:12:36</span>      
-            <span class="zan" id="zan-639ef5a460195e6845e165a8" data-id="639ef5a41d35662164eecdf8" data-zanid="639ef5a460195e6845e165a8" onclick="javascript:sytalk.zan(this)">
+            <span class="os"><i class="syicon sy-android"></i>{{shuo.userOs}}</span>      
+            <span class="date"><i :class="`syicon ` + (shuo.timeSvg || '')"></i>{{shuo.createdAt}}</span>      
+            <span class="zan" :id="`zan-` + shuo.zanId" @click="zan(shuo.zanId)">
               <i class="syicon sy-zan"></i>
-              <span class="num">0</span>
+              <span class="num">{{shuo.zanNum}}</span>
             </span>    
           </p>  
         </span>
