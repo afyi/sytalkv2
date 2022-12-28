@@ -115,14 +115,25 @@
     email: string
   }
 
+  // 从远程拿来的主体结构
+  interface atList {
+    id: (string | undefined), 
+    avatar: string,
+    atContentHtml: string,
+    userOs: string,
+    createdAt: string,
+    zanId: string,
+    zanNum: number,
+    timeSvg?: string
+  }
+
   // 这里让顶部的welcome不显示
   const loading = ref(false);
 
   // 显示登陆框
   const loginPanel = ref(false)
 
-  // 
-  const shuoList = reactive<object[]>([]);
+  const shuoList = ref([] as atList[]);
 
   // 起始页
   let startNum: number = 0; 
@@ -144,10 +155,9 @@
       });
       // 这里获取当前用户信息
       atUser = AV.User.current();
-      // 结果数组
-      let resList: Array<any> = [];
       //
       let query = new AV.Query('shuoshuo');
+
       // 先获取总条数，再进行循环
       query.count().then(totalNum => {
         console.log("总条数:", totalNum);
@@ -159,18 +169,12 @@
         query.skip(startNum);
         // 拿到列表
         query.find().then(shuoContent => {
-          let atList: Array<any> = [];
           for (let i = 0; i < shuoContent.length; i++) {
             let atContent = shuoContent[i] as AV.Queriable;
-            // atList.push({id: atContent.id, avatar: atContent.get("avatar"), atContentHtml: atContent.get("atContentHtml"), userOs: atContent.get("userOs"), createdAt: atContent.get("createdAt"), zanId: atContent.get("zanId"), zanNum: 0});
-            shuoList.push({id: atContent.id, avatar: atContent.get("avatar"), atContentHtml: atContent.get("atContentHtml"), userOs: atContent.get("userOs"), createdAt: atContent.get("createdAt"), zanId: atContent.get("zanId"), zanNum: 0});
+            shuoList.value.push({id: atContent.id, avatar: atContent.get("avatar"), atContentHtml: atContent.get("atContentHtml"), userOs: atContent.get("userOs"), createdAt: atContent.get("createdAt"), zanId: atContent.get("zanId"), zanNum: 0});
           }
-          
-          console.log(shuoList);
         });
       });
-
-
     } catch(e: any) {
       console.log(e.message);
     }
